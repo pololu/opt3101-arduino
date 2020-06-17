@@ -20,7 +20,8 @@ void setup()
   }
 
   sensor.setFrameTiming(512);
-  sensor.setChannelAndBrightness(OPT3101Channel::TX1);
+  sensor.setChannel(OPT3101Channel::TX1);
+  sensor.setBrightness(OPT3101Brightness::Adaptive);
   sensor.startTimingGenerator();
 }
 

@@ -29,10 +29,9 @@ public:
 
   void init();
   void setStandardRuntimeSettings();
-  void setChannelAndBrightness(OPT3101Channel ch, OPT3101Brightness br = OPT3101Brightness::Adaptive);
-private:
+  void setChannel(OPT3101Channel);
+  void setBrightness(OPT3101Brightness);
   void setMonoshotMode(uint8_t frameCount = 1);
-public:
   void setFrameTiming(uint16_t subFrameCount);
   void startMonoshotMeasurement();
   void calibrateInternalCrosstalk();

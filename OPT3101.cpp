@@ -88,7 +88,7 @@ void OPT3101::setStandardRuntimeSettings()
   writeReg(0x50, 0x200101);  // CLIP_MODE_* (see above)
 }
 
-void OPT3101::setChannelAndBrightness(OPT3101Channel ch, OPT3101Brightness br)
+void OPT3101::setChannel(OPT3101Channel ch)
 {
   uint32_t reg2a = readReg(0x2a);
   if (getLastError()) { return; }
@@ -102,6 +102,14 @@ void OPT3101::setChannelAndBrightness(OPT3101Channel ch, OPT3101Brightness br)
     reg2a &= ~((uint32_t)1 << 1);  // EN_TX_SWITCH = 0
     reg2a = reg2a & ~((uint32_t)3 << 1) | ((uint8_t)ch & 3) << 1;
   }
+
+  writeReg(0x2a, reg2a);
+}
+
+void OPT3101::setBrightness(OPT3101Brightness br)
+{
+  uint32_t reg2a = readReg(0x2a);
+  if (getLastError()) { return; }
 
   if (br == OPT3101Brightness::Adaptive)
   {
@@ -187,8 +195,8 @@ void OPT3101::startTimingGenerator()
 
 void OPT3101::calibrateInternalCrosstalk()
 {
-  // We call this just to disable adaptive HDR, which might cause issues.
-  setChannelAndBrightness(OPT3101Channel::TX1, OPT3101Brightness::High);
+  // Make sure adaptive HDR is disabled, since it might cause issues.
+  setBrightness(OPT3101Brightness::High);
   if (getLastError()) { return; }
 
   setFrameTiming(4096);
