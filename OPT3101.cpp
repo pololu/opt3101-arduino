@@ -104,7 +104,7 @@ void OPT3101::setTxChannelAndHdr(uint8_t tx, uint8_t hdr)
   else
   {
     reg2a &= ~(1 << 15);  // EN_ADAPTIVE_HDR = 0
-    reg2a = reg2a & ~(1 << 16) | (hdr & 1) << 16;  // SEL_HDR_MODE = hdr
+    reg2a = reg2a & ~0x10000 | (uint32_t)(hdr & 1) << 16;  // SEL_HDR_MODE = hdr
   }
 
   writeReg(0x2a, reg2a);
@@ -146,16 +146,16 @@ void OPT3101::setFrameTiming(uint16_t subFrameCount)
 
   uint32_t reg2e = readReg(0x2e);
   if (getLastError()) { return; }
-  reg2e = reg2e & ~0xF00000 | timeConst << 20;
+  reg2e = reg2e & ~0xF00000 | (uint32_t)timeConst << 20;
   writeReg(0x2e, reg2e);
 
   // Set NUM_SUB_FRAMES and NUM_AVG_SUB_FRAMES.
-  writeReg(0x9f, (subFrameCount - 1) | (subFrameCount - 1) << 12);
+  writeReg(0x9f, (subFrameCount - 1) | (uint32_t)(subFrameCount - 1) << 12);
   if (getLastError()) { return; }
 
   // Set TG_SEQ_INT_MASK_START and TG_SEQ_INT_MASK_END according to what
   // the OPT3101 datasheet says, but it's probably not needed.
-  writeReg(0x97, (subFrameCount - 1) | (subFrameCount - 1) << 12);
+  writeReg(0x97, (subFrameCount - 1) | (uint32_t)(subFrameCount - 1) << 12);
 
   // Assuming that SUB_VD_CLK_CNT has not been changed, each sub-frame is
   // 0.25 ms.  The +3 is to make sure we round up.
