@@ -32,7 +32,17 @@ public:
   void setTxChannelAndHdr(uint8_t tx, uint8_t hdr);
   void setMonoshotMode(uint8_t frameCount = 1);
   void setFrameTiming(uint16_t subFrameCount);
+  void startMonoshotMeasurement();
   void calibrateInternalCrosstalk();
+  void startTimingGenerator();
+  void readOutputRegs();
+  void monoshotAndRead();
+
+  int32_t i, q;
+  uint16_t amplitude;
+  int16_t phase;
+
+  uint16_t frameDelayTimeMs;
 
 protected:
   uint8_t lastError = 0;
