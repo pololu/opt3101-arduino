@@ -244,6 +244,10 @@ void OPT3101::readOutputRegs()
 
   // c / (2 * 10 MHz * 0x10000) = 0.22872349395 mm ~= 14990/0x10000
   distanceMillimeters = (uint32_t)phase * 14990 >> 16;
+
+  ambient = reg0a >> 2 & 0x3FF;  // AMB_DATA
+
+  temperature = reg0a >> 12 & 0xFFF;  // TMAIN
 }
 
 void OPT3101::monoshotAndRead()

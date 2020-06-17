@@ -38,6 +38,8 @@ public:
   void readOutputRegs();
   void monoshotAndRead();
 
+  uint16_t ambient;
+  uint16_t temperature;
   int32_t i, q;
   uint16_t amplitude;
   int16_t phase;

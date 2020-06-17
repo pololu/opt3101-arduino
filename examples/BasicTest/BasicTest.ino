@@ -27,6 +27,11 @@ void setup()
 void loop()
 {
   sensor.monoshotAndRead();
+
+  Serial.print(sensor.temperature);
+  Serial.print(',');
+  Serial.print(sensor.ambient);
+  Serial.print(',');
   Serial.print(sensor.i);
   Serial.print(',');
   Serial.print(sensor.q);
