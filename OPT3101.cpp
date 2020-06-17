@@ -3,22 +3,17 @@
 
 static const uint32_t reg80Default = 0x4e1e;
 
-void OPT3101::init()
-{
-  resetAndWait();
-  if (getLastError()) { return; }
-  setStandardRuntimeSettings();
-  if (getLastError()) { return; }
-  calibrateInternalCrosstalk();
-  if (getLastError()) { return; }
-  setMonoshotMode();
-}
-
 void OPT3101::resetAndWait()
 {
-  // Set SOFTWARE_RESET to 1 to reset the sensor.
-  writeReg(0x00, 1);
-  if (getLastError()) { return; }
+  // Set SOFTWARE_RESET to 1, but don't use writeReg, because the OPT3101 will
+  // stop acknowledging after it receives the first register value byte.
+  Wire.beginTransmission(address);
+  Wire.write(0);
+  Wire.write(1);
+  lastError = Wire.endTransmission();
+  if (lastError) { return; }
+
+  // Give the sensor some time to get ready.
   delay(5);
 
   // Wait for INIT_LOAD_DONE to be set, indicating that the OPT3101 is done
@@ -28,24 +23,6 @@ void OPT3101::resetAndWait()
     if (getLastError()) { return; }
     delay(1);
   }
-}
-
-// Sets these settings:
-//  TG_OVL_WINDOW_START = 7000   (reg 0x89)
-//  EN_TEMP_CONV = 1             (reg 0x6E)
-//  CLIP_MODE_FC = 1             (reg 0x50)
-//  CLIP_MODE_TEMP = 0           (reg 0x50)
-//  CLIP_MODE_OFFSET = 0         (reg 0x50)
-// To make things a little more reliable, we try to just write entire registers
-// at a time, so we are making assumptions about what values we want in the
-// other bits of those registers.
-void OPT3101::setStandardRuntimeSettings()
-{
-  writeReg(0x89, 7000);      // TG_OVL_WINDOW_START = 7000
-  if (getLastError()) { return; }
-  writeReg(0x6e, 0x0a0000);  // EN_TEMP_CONV = 1
-  if (getLastError()) { return; }
-  writeReg(0x50, 0x200101);  // CLIP_MODE_* (see above)
 }
 
 void OPT3101::writeReg(uint8_t reg, uint32_t value)
@@ -80,6 +57,35 @@ uint32_t OPT3101::readReg(uint8_t reg)
   value |= (uint16_t)Wire.read() << 8;
   value |= (uint32_t)Wire.read() << 16;
   return value;
+}
+
+void OPT3101::init()
+{
+  resetAndWait();
+  if (getLastError()) { return; }
+  setStandardRuntimeSettings();
+  if (getLastError()) { return; }
+  calibrateInternalCrosstalk();
+  if (getLastError()) { return; }
+  setMonoshotMode();
+}
+
+// Sets these settings:
+//  TG_OVL_WINDOW_START = 7000   (reg 0x89)
+//  EN_TEMP_CONV = 1             (reg 0x6E)
+//  CLIP_MODE_FC = 1             (reg 0x50)
+//  CLIP_MODE_TEMP = 0           (reg 0x50)
+//  CLIP_MODE_OFFSET = 0         (reg 0x50)
+// To make things a little more reliable, we try to just write entire registers
+// at a time, so we are making assumptions about what values we want in the
+// other bits of those registers.
+void OPT3101::setStandardRuntimeSettings()
+{
+  writeReg(0x89, 7000);      // TG_OVL_WINDOW_START = 7000
+  if (getLastError()) { return; }
+  writeReg(0x6e, 0x0a0000);  // EN_TEMP_CONV = 1
+  if (getLastError()) { return; }
+  writeReg(0x50, 0x200101);  // CLIP_MODE_* (see above)
 }
 
 void OPT3101::setChannelAndBrightness(OPT3101Channel ch, OPT3101Brightness br)

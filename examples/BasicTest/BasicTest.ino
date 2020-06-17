@@ -8,11 +8,13 @@ void setup()
   Wire.begin();
   sensor.init();
 
+  // Wait for the serial port to be opened before printing error
+  // messages (only applies to boards with native USB).
   while (!Serial) {}
 
   if (sensor.getLastError())
   {
-    Serial.print(F("Failed to initialize sensor: error "));
+    Serial.print(F("Failed to initialize OPT3101: error "));
     Serial.println(sensor.getLastError());
     while (1) {}
   }

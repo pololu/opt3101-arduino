@@ -23,11 +23,11 @@ public:
 
   uint8_t getLastError() { return lastError; };
 
-  uint32_t readReg(uint8_t reg);
+  void resetAndWait();
   void writeReg(uint8_t reg, uint32_t value);
+  uint32_t readReg(uint8_t reg);
 
   void init();
-  void resetAndWait();
   void setStandardRuntimeSettings();
   void setChannelAndBrightness(OPT3101Channel ch, OPT3101Brightness br = OPT3101Brightness::Adaptive);
 private:
