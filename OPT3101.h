@@ -41,6 +41,7 @@ public:
   int32_t i, q;
   uint16_t amplitude;
   int16_t phase;
+  int16_t distanceMillimeters;
 
   uint16_t frameDelayTimeMs;
 

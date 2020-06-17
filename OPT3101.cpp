@@ -10,6 +10,8 @@ void OPT3101::init()
   setStandardRuntimeSettings();
   if (getLastError()) { return; }
   calibrateInternalCrosstalk();
+  if (getLastError()) { return; }
+  setMonoshotMode();
 }
 
 void OPT3101::resetAndWait()
@@ -86,6 +88,7 @@ uint32_t OPT3101::readReg(uint8_t reg)
 void OPT3101::setTxChannelAndHdr(uint8_t tx, uint8_t hdr)
 {
   uint32_t reg2a = readReg(0x2a);
+  if (getLastError()) { return; }
 
   if (tx == OPT3101_TX_SWITCH)
   {
@@ -93,8 +96,8 @@ void OPT3101::setTxChannelAndHdr(uint8_t tx, uint8_t hdr)
   }
   else
   {
-    reg2a &= ~(1 << 1);  // EN_TX_SWITCH = 0
-    reg2a = reg2a & ~(3 << 1) | (tx & 3) << 1;
+    reg2a &= ~((uint32_t)1 << 1);  // EN_TX_SWITCH = 0
+    reg2a = reg2a & ~((uint32_t)3 << 1) | (tx & 3) << 1;
   }
 
   if (hdr == OPT3101_ADAPTIVE_HDR)
@@ -103,8 +106,9 @@ void OPT3101::setTxChannelAndHdr(uint8_t tx, uint8_t hdr)
   }
   else
   {
-    reg2a &= ~(1 << 15);  // EN_ADAPTIVE_HDR = 0
-    reg2a = reg2a & ~0x10000 | (uint32_t)(hdr & 1) << 16;  // SEL_HDR_MODE = hdr
+    // EN_ADAPTIVE_HDR = 0
+    // SEL_HDR_MODE = hdr
+    reg2a = reg2a & ~0x18000 | (uint32_t)(hdr & 1) << 16;
   }
 
   writeReg(0x2a, reg2a);
@@ -126,7 +130,7 @@ void OPT3101::setMonoshotMode(uint8_t frameCount)
   if (getLastError()) { return; }
 
   // POWERUP_DELAY = 95
-  writeReg(0x26, 95 << 10 | 0xF);
+  writeReg(0x26, (uint32_t)95 << 10 | 0xF);
   if (getLastError()) { return; }
 }
 
@@ -181,14 +185,17 @@ void OPT3101::startTimingGenerator()
 void OPT3101::calibrateInternalCrosstalk()
 {
   // We call this just to disable adaptive HDR, which might cause issues.
-  setTxChannelAndHdr(0, 0);
+  setTxChannelAndHdr(1, 1);
   if (getLastError()) { return; }
 
   setFrameTiming(4096);
+  if (getLastError()) { return; }
 
   setMonoshotMode(5);
+  if (getLastError()) { return; }
 
   uint32_t reg2e = readReg(0x2e);
+  if (getLastError()) { return; }
 
   // USE_XTALK_FILT_INT = 1: Select the filtered IQ readings, not direct.
   reg2e |= (1 << 5);
@@ -203,16 +210,21 @@ void OPT3101::calibrateInternalCrosstalk()
   reg2e = (reg2e & ~(7 << 9)) | (2 << 9);
 
   writeReg(0x2e, reg2e);
+  if (getLastError()) { return; }
   writeReg(0x80, reg80Default | 1);  // TG_EN = 1: Turn on timing generator.
+  if (getLastError()) { return; }
   writeReg(0x2e, reg2e | (1 << 4));  // INT_XTALK_CALIB = 1
+  if (getLastError()) { return; }
 
   startMonoshotMeasurement();
+  if (getLastError()) { return; }
 
   // Sleep for 5 frames. Each frame is 1024 ms.
   // Use a 5% margin in case the OPT3101 clock is running fast.
   delay(5376);  // 5 * 1024 * 1.05 = 5376
 
   writeReg(0x2e, reg2e);         // INT_XTALK_CALIB = 0
+  if (getLastError()) { return; }
   writeReg(0x80, reg80Default);  // TG_EN = 0
 }
 
@@ -227,8 +239,11 @@ void OPT3101::readOutputRegs()
   q = readReg(0x3c);
   if (q > 0x7fffff) { q -= 0x1000000; }
 
-  amplitude = reg09 & 0xFFF;  // AMP_OUT
+  amplitude = reg09 & 0xFFFF;  // AMP_OUT
   phase = reg08 & 0xFFFF;  // PHASE_OUT
+
+  // c / (2 * 10 MHz * 0x10000) = 0.22872349395 mm ~= 14990/0x10000
+  distanceMillimeters = (uint32_t)phase * 14990 >> 16;
 }
 
 void OPT3101::monoshotAndRead()
