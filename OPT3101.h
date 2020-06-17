@@ -37,7 +37,7 @@ public:
   void calibrateInternalCrosstalk();
   void startTimingGenerator();
   void readOutputRegs();
-  void monoshotAndRead();
+  void sample();
 
   uint16_t ambient;
   uint16_t temperature;

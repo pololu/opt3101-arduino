@@ -261,7 +261,7 @@ void OPT3101::readOutputRegs()
   temperature = reg0a >> 12 & 0xFFF;  // TMAIN
 }
 
-void OPT3101::monoshotAndRead()
+void OPT3101::sample()
 {
   startMonoshotMeasurement();
   delay(frameDelayTimeMs);
