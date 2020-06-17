@@ -2,15 +2,18 @@
 
 #include <Arduino.h>
 
-// TODO: should probably make enum classes or something for the TX/HDR constants
-static const uint8_t
-  OPT3101_NO_PIN = 255,
-  OPT3101_TX_SWITCH = 255,
-  OPT3101_TX0 = 0,
-  OPT3101_TX1 = 1,
-  OPT3101_ADAPTIVE_HDR = 255,
-  OPT3101_HDR0 = 0,
-  OPT3101_HDR1 = 1;
+enum class OPT3101Channel {
+  TX0 = 0,
+  TX1 = 1,
+  TX2 = 2,
+  Switch = 255
+};
+
+enum class OPT3101Brightness {
+  Low = 0,
+  High = 1,
+  Adaptive = 255
+};
 
 class OPT3101
 {
@@ -26,8 +29,10 @@ public:
   void init();
   void resetAndWait();
   void setStandardRuntimeSettings();
-  void setTxChannelAndHdr(uint8_t tx, uint8_t hdr);
+  void setChannelAndBrightness(OPT3101Channel ch, OPT3101Brightness br = OPT3101Brightness::Adaptive);
+private:
   void setMonoshotMode(uint8_t frameCount = 1);
+public:
   void setFrameTiming(uint16_t subFrameCount);
   void startMonoshotMeasurement();
   void calibrateInternalCrosstalk();
@@ -49,5 +54,4 @@ protected:
 
 private:
   uint8_t address = 0x58;
-  uint8_t resetPin = OPT3101_NO_PIN;
 };

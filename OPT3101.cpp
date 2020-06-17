@@ -82,22 +82,22 @@ uint32_t OPT3101::readReg(uint8_t reg)
   return value;
 }
 
-void OPT3101::setTxChannelAndHdr(uint8_t tx, uint8_t hdr)
+void OPT3101::setChannelAndBrightness(OPT3101Channel ch, OPT3101Brightness br)
 {
   uint32_t reg2a = readReg(0x2a);
   if (getLastError()) { return; }
 
-  if (tx == OPT3101_TX_SWITCH)
+  if (ch == OPT3101Channel::Switch)
   {
     reg2a |= (1 << 1);  // EN_TX_SWITCH = 1
   }
   else
   {
     reg2a &= ~((uint32_t)1 << 1);  // EN_TX_SWITCH = 0
-    reg2a = reg2a & ~((uint32_t)3 << 1) | (tx & 3) << 1;
+    reg2a = reg2a & ~((uint32_t)3 << 1) | ((uint8_t)ch & 3) << 1;
   }
 
-  if (hdr == OPT3101_ADAPTIVE_HDR)
+  if (br == OPT3101Brightness::Adaptive)
   {
     reg2a |= (1 << 15);  // EN_ADAPTIVE_HDR = 1
   }
@@ -105,7 +105,7 @@ void OPT3101::setTxChannelAndHdr(uint8_t tx, uint8_t hdr)
   {
     // EN_ADAPTIVE_HDR = 0
     // SEL_HDR_MODE = hdr
-    reg2a = reg2a & ~0x18000 | (uint32_t)(hdr & 1) << 16;
+    reg2a = reg2a & ~0x18000 | ((uint32_t)br & 1) << 16;
   }
 
   writeReg(0x2a, reg2a);
@@ -182,7 +182,7 @@ void OPT3101::startTimingGenerator()
 void OPT3101::calibrateInternalCrosstalk()
 {
   // We call this just to disable adaptive HDR, which might cause issues.
-  setTxChannelAndHdr(1, 1);
+  setChannelAndBrightness(OPT3101Channel::TX1, OPT3101Brightness::High);
   if (getLastError()) { return; }
 
   setFrameTiming(4096);
