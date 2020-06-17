@@ -16,12 +16,9 @@ void OPT3101::init()
 
 void OPT3101::resetAndWait()
 {
-  // TODO: try using the SOFTWARE_RESET bit instead!  One less connection!
-  digitalWrite(resetPin, 0);
-  pinMode(resetPin, OUTPUT);
-  digitalWrite(resetPin, 0);
-  delayMicroseconds(50);
-  pinMode(resetPin, INPUT);
+  // Set SOFTWARE_RESET to 1 to reset the sensor.
+  writeReg(0x00, 1);
+  if (getLastError()) { return; }
   delay(5);
 
   // Wait for INIT_LOAD_DONE to be set, indicating that the OPT3101 is done

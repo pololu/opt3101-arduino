@@ -18,9 +18,6 @@ public:
   void setAddress(uint8_t address) { this->address = address; }
   uint8_t getAddress() { return address; }
 
-  void setResetPin(uint8_t pin) { this->resetPin = pin; }
-  uint8_t getResetPin() { return resetPin; }
-
   uint8_t getLastError() { return lastError; };
 
   uint32_t readReg(uint8_t reg);

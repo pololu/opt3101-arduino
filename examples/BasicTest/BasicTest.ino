@@ -6,8 +6,6 @@ OPT3101 sensor;
 void setup()
 {
   Wire.begin();
-
-  sensor.setResetPin(4);
   sensor.init();
 
   while (!Serial) {}
