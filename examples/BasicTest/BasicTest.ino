@@ -8,7 +8,7 @@ void setup()
   Wire.begin();
   sensor.init();
 
-  // Wait for the serial port to be opened before printing error
+  // Wait for the serial port to be opened before printing
   // messages (only applies to boards with native USB).
   while (!Serial) {}
 
@@ -22,7 +22,6 @@ void setup()
   sensor.setFrameTiming(512);
   sensor.setChannel(OPT3101Channel::TX1);
   sensor.setBrightness(OPT3101Brightness::Adaptive);
-  sensor.startTimingGenerator();
 }
 
 void loop()

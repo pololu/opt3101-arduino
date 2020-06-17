@@ -180,17 +180,25 @@ void OPT3101::setFrameTiming(uint16_t subFrameCount)
   frameDelayTimeMs = frameTimeMs + (frameTimeMs + 15) / 16;
 }
 
+void OPT3101::enableTimingGenerator()
+{
+  writeReg(0x80, reg80Default | 1);  // TG_EN = 1
+  timingGeneratorEnabled = true;
+}
+
+void OPT3101::disableTimingGenerator()
+{
+  writeReg(0x80, reg80Default);  // TG_EN = 0
+  timingGeneratorEnabled = false;
+}
+
 void OPT3101::startMonoshotMeasurement()
 {
+  if (!timingGeneratorEnabled) { enableTimingGenerator(); }
   // Set MONOSHOT_BIT to 0 before setting it to 1, as recommended here:
   // https://e2e.ti.com/support/sensors/f/1023/p/756598/2825649#2825649
   writeReg(0x00, 0x000000);
   writeReg(0x00, 0x800000);
-}
-
-void OPT3101::startTimingGenerator()
-{
-  writeReg(0x80, reg80Default | 1);  // TG_EN = 1
 }
 
 void OPT3101::calibrateInternalCrosstalk()
@@ -222,7 +230,7 @@ void OPT3101::calibrateInternalCrosstalk()
 
   writeReg(0x2e, reg2e);
   if (getLastError()) { return; }
-  writeReg(0x80, reg80Default | 1);  // TG_EN = 1: Turn on timing generator.
+  enableTimingGenerator();
   if (getLastError()) { return; }
   writeReg(0x2e, reg2e | (1 << 4));  // INT_XTALK_CALIB = 1
   if (getLastError()) { return; }
@@ -236,7 +244,7 @@ void OPT3101::calibrateInternalCrosstalk()
 
   writeReg(0x2e, reg2e);         // INT_XTALK_CALIB = 0
   if (getLastError()) { return; }
-  writeReg(0x80, reg80Default);  // TG_EN = 0
+  disableTimingGenerator();
 }
 
 void OPT3101::readOutputRegs()

@@ -33,9 +33,10 @@ public:
   void setBrightness(OPT3101Brightness);
   void setMonoshotMode(uint8_t frameCount = 1);
   void setFrameTiming(uint16_t subFrameCount);
+  void enableTimingGenerator();
+  void disableTimingGenerator();
   void startMonoshotMeasurement();
   void calibrateInternalCrosstalk();
-  void startTimingGenerator();
   void readOutputRegs();
   void sample();
 
@@ -48,9 +49,8 @@ public:
 
   uint16_t frameDelayTimeMs;
 
-protected:
-  uint8_t lastError = 0;
-
 private:
+  bool timingGeneratorEnabled = false;
+  uint8_t lastError = 0;
   uint8_t address = 0x58;
 };
