@@ -192,7 +192,7 @@ void OPT3101::disableTimingGenerator()
   timingGeneratorEnabled = false;
 }
 
-void OPT3101::startMonoshotMeasurement()
+void OPT3101::startMonoshotSample()
 {
   if (!timingGeneratorEnabled) { enableTimingGenerator(); }
   // Set MONOSHOT_BIT to 0 before setting it to 1, as recommended here:
@@ -235,7 +235,7 @@ void OPT3101::calibrateInternalCrosstalk()
   writeReg(0x2e, reg2e | (1 << 4));  // INT_XTALK_CALIB = 1
   if (getLastError()) { return; }
 
-  startMonoshotMeasurement();
+  startMonoshotSample();
   if (getLastError()) { return; }
 
   // Sleep for 5 frames. Each frame is 1024 ms.
@@ -271,7 +271,7 @@ void OPT3101::readOutputRegs()
 
 void OPT3101::sample()
 {
-  startMonoshotMeasurement();
+  startMonoshotSample();
   delay(frameDelayTimeMs);
   readOutputRegs();
 }

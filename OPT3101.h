@@ -35,7 +35,7 @@ public:
   void setFrameTiming(uint16_t subFrameCount);
   void enableTimingGenerator();
   void disableTimingGenerator();
-  void startMonoshotMeasurement();
+  void startMonoshotSample();
   void calibrateInternalCrosstalk();
   void readOutputRegs();
   void sample();
