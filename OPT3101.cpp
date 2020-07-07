@@ -83,7 +83,16 @@ void OPT3101::setStandardRuntimeSettings()
   if (getLastError()) { return; }
   writeReg(0x6e, 0x0a0000);  // EN_TEMP_CONV = 1
   if (getLastError()) { return; }
-  writeReg(0x50, 0x200101);  // CLIP_MODE_* (see above)
+  writeReg(0x50, 0x200101);  // CLIP_MODE_FC = 1 (see above)
+                             // CLIP_MODE_TEMP = 0
+                             // CLIP_MODE_OFFSET = 0
+  if (getLastError()) { return; }
+
+  // IQ_READ_DATA_SEL = 2: This lets us read IQ values later.
+  uint32_t reg2e = readReg(0x2e);
+  if (getLastError()) { return; }
+  reg2e = (reg2e & ~(7 << 9)) | (2 << 9);
+  writeReg(0x2e, reg2e);
 }
 
 void OPT3101::setChannel(OPT3101Channel ch)
@@ -91,17 +100,17 @@ void OPT3101::setChannel(OPT3101Channel ch)
   uint32_t reg2a = readReg(0x2a);
   if (getLastError()) { return; }
 
-  if (ch == OPT3101Channel::Switch)
-  {
-    reg2a |= (1 << 1);  // EN_TX_SWITCH = 1
-  }
-  else
-  {
-    reg2a &= ~((uint32_t)1 << 1);  // EN_TX_SWITCH = 0
-    reg2a = reg2a & ~((uint32_t)3 << 1) | ((uint8_t)ch & 3) << 1;
-  }
+  reg2a &= ~((uint32_t)1 << 1);  // EN_TX_SWITCH = 0
+  reg2a = reg2a & ~((uint32_t)3 << 1) | ((uint8_t)ch & 3) << 1;
 
   writeReg(0x2a, reg2a);
+}
+
+void OPT3101::nextChannel()
+{
+  if (channel == OPT3101Channel::TX0) { setChannel(OPT3101Channel::TX1); }
+  else if (channel == OPT3101Channel::TX1) { setChannel(OPT3101Channel::TX2); }
+  else { setChannel(OPT3101Channel::TX0); }
 }
 
 void OPT3101::setBrightness(OPT3101Brightness br)
@@ -190,13 +199,19 @@ void OPT3101::disableTimingGenerator()
   timingGeneratorEnabled = false;
 }
 
-void OPT3101::startMonoshotSample()
+void OPT3101::startSample()
 {
   if (!timingGeneratorEnabled) { enableTimingGenerator(); }
   // Set MONOSHOT_BIT to 0 before setting it to 1, as recommended here:
   // https://e2e.ti.com/support/sensors/f/1023/p/756598/2825649#2825649
   writeReg(0x00, 0x000000);
   writeReg(0x00, 0x800000);
+  startSampleTimeMs = millis();
+}
+
+bool OPT3101::isSampleDone()
+{
+  return (uint16_t)(millis() - startSampleTimeMs) > frameDelayTimeMs;
 }
 
 void OPT3101::readOutputRegs()
@@ -204,6 +219,10 @@ void OPT3101::readOutputRegs()
   uint32_t reg08 = readReg(0x08);
   uint32_t reg09 = readReg(0x09);
   uint32_t reg0a = readReg(0x0a);
+
+  channel = (OPT3101Channel)(reg08 >> 18 & 3);
+  if (channel > OPT3101Channel::TX2) { channel = OPT3101Channel::TX2; }
+  brightness = (OPT3101Brightness)(reg08 >> 17 & 1);
 
   i = readReg(0x3b);
   if (i > 0x7fffff) { i -= 0x1000000; }
@@ -223,7 +242,7 @@ void OPT3101::readOutputRegs()
 
 void OPT3101::sample()
 {
-  startMonoshotSample();
+  startSample();
   delay(frameDelayTimeMs);
   readOutputRegs();
 }

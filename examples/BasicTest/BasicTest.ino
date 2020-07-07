@@ -28,6 +28,10 @@ void loop()
 {
   sensor.sample();
 
+  Serial.print((uint8_t)sensor.channel);
+  Serial.print(',');
+  Serial.print((uint8_t)sensor.brightness);
+  Serial.print(',');
   Serial.print(sensor.temperature);
   Serial.print(',');
   Serial.print(sensor.ambient);
