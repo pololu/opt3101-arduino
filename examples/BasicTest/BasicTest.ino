@@ -6,12 +6,12 @@ OPT3101 sensor;
 void setup()
 {
   Wire.begin();
-  sensor.init();
 
   // Wait for the serial port to be opened before printing
   // messages (only applies to boards with native USB).
   while (!Serial) {}
 
+  sensor.init();
   if (sensor.getLastError())
   {
     Serial.print(F("Failed to initialize OPT3101: error "));

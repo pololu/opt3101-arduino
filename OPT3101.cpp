@@ -65,8 +65,6 @@ void OPT3101::init()
   if (getLastError()) { return; }
   setStandardRuntimeSettings();
   if (getLastError()) { return; }
-  calibrateInternalCrosstalk();
-  if (getLastError()) { return; }
   setMonoshotMode();
 }
 
@@ -199,52 +197,6 @@ void OPT3101::startMonoshotSample()
   // https://e2e.ti.com/support/sensors/f/1023/p/756598/2825649#2825649
   writeReg(0x00, 0x000000);
   writeReg(0x00, 0x800000);
-}
-
-void OPT3101::calibrateInternalCrosstalk()
-{
-  // Make sure adaptive HDR is disabled, since it might cause issues.
-  setBrightness(OPT3101Brightness::High);
-  if (getLastError()) { return; }
-
-  setFrameTiming(4096);
-  if (getLastError()) { return; }
-
-  setMonoshotMode(5);
-  if (getLastError()) { return; }
-
-  uint32_t reg2e = readReg(0x2e);
-  if (getLastError()) { return; }
-
-  // USE_XTALK_FILT_INT = 1: Select the filtered IQ readings, not direct.
-  reg2e |= (1 << 5);
-
-  // USE_XTALK_REG_INT = 0: Use the internally calibrated value for
-  // internal crosstalk.
-  reg2e &= ~(1 << 6);
-
-  // IQ_READ_DATA_SEL = 2: This lets us read IQ values later.
-  // We would use a value of 0 if we wanted to read the result of this
-  // calibration instead.
-  reg2e = (reg2e & ~(7 << 9)) | (2 << 9);
-
-  writeReg(0x2e, reg2e);
-  if (getLastError()) { return; }
-  enableTimingGenerator();
-  if (getLastError()) { return; }
-  writeReg(0x2e, reg2e | (1 << 4));  // INT_XTALK_CALIB = 1
-  if (getLastError()) { return; }
-
-  startMonoshotSample();
-  if (getLastError()) { return; }
-
-  // Sleep for 5 frames. Each frame is 1024 ms.
-  // Use a 5% margin in case the OPT3101 clock is running fast.
-  delay(5376);  // 5 * 1024 * 1.05 = 5376
-
-  writeReg(0x2e, reg2e);         // INT_XTALK_CALIB = 0
-  if (getLastError()) { return; }
-  disableTimingGenerator();
 }
 
 void OPT3101::readOutputRegs()

@@ -36,7 +36,6 @@ public:
   void enableTimingGenerator();
   void disableTimingGenerator();
   void startMonoshotSample();
-  void calibrateInternalCrosstalk();
   void readOutputRegs();
   void sample();
 
