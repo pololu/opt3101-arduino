@@ -66,6 +66,8 @@ void OPT3101::init()
   setStandardRuntimeSettings();
   if (getLastError()) { return; }
   setMonoshotMode();
+  if (getLastError()) { return; }
+  setFrameTiming(512);
 }
 
 // Sets these settings:
@@ -93,27 +95,26 @@ void OPT3101::setStandardRuntimeSettings()
   if (getLastError()) { return; }
   reg2e = (reg2e & ~(7 << 9)) | (2 << 9);
   writeReg(0x2e, reg2e);
-  if (getLastError()) { return; }
-
-  setFrameTiming(512);
 }
 
-void OPT3101::setChannel(OPT3101Channel ch)
+void OPT3101::setChannel(uint8_t channel)
 {
+  if (channel > 2) { channel = 0; }
+
   uint32_t reg2a = readReg(0x2a);
   if (getLastError()) { return; }
 
   reg2a &= ~((uint32_t)1 << 1);  // EN_TX_SWITCH = 0
-  reg2a = reg2a & ~((uint32_t)3 << 1) | ((uint8_t)ch & 3) << 1;
+  reg2a = reg2a & ~((uint32_t)3 << 1) | (channel & 3) << 1;
 
   writeReg(0x2a, reg2a);
 }
 
 void OPT3101::nextChannel()
 {
-  if (channel == OPT3101Channel::TX0) { setChannel(OPT3101Channel::TX1); }
-  else if (channel == OPT3101Channel::TX1) { setChannel(OPT3101Channel::TX2); }
-  else { setChannel(OPT3101Channel::TX0); }
+  uint8_t nextChannel = channelUsed + 1;
+  if (nextChannel > 2) { nextChannel = 0; }
+  setChannel(nextChannel);
 }
 
 void OPT3101::setBrightness(OPT3101Brightness br)
@@ -223,9 +224,9 @@ void OPT3101::readOutputRegs()
   uint32_t reg09 = readReg(0x09);
   uint32_t reg0a = readReg(0x0a);
 
-  channel = (OPT3101Channel)(reg08 >> 18 & 3);
-  if (channel > OPT3101Channel::TX2) { channel = OPT3101Channel::TX2; }
-  brightness = (OPT3101Brightness)(reg08 >> 17 & 1);
+  channelUsed = reg08 >> 18 & 3;
+  if (channelUsed > 2) { channelUsed = 2; }
+  brightnessUsed = (OPT3101Brightness)(reg08 >> 17 & 1);
 
   i = readReg(0x3b);
   if (i > 0x7fffff) { i -= 0x1000000; }

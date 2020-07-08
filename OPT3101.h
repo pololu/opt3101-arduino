@@ -2,12 +2,6 @@
 
 #include <Arduino.h>
 
-enum class OPT3101Channel : uint8_t {
-  TX0 = 0,
-  TX1 = 1,
-  TX2 = 2,
-};
-
 enum class OPT3101Brightness : uint8_t {
   Low = 0,
   High = 1,
@@ -28,7 +22,7 @@ public:
 
   void init();
   void setStandardRuntimeSettings();
-  void setChannel(OPT3101Channel);
+  void setChannel(uint8_t channel);
   void nextChannel();
   void setBrightness(OPT3101Brightness);
   void setMonoshotMode(uint8_t frameCount = 1);
@@ -40,8 +34,8 @@ public:
   void readOutputRegs();
   void sample();
 
-  OPT3101Channel channel = OPT3101Channel::TX0;
-  OPT3101Brightness brightness;
+  uint8_t channelUsed = 0;
+  OPT3101Brightness brightnessUsed;
   uint16_t ambient;
   uint16_t temperature;
   int32_t i, q;

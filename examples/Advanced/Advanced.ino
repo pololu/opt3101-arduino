@@ -1,3 +1,10 @@
+// This example shows how to read from all three channels on
+// the OPT3101 and store the results in arrays.  It also shows
+// how to use the sensor in a non-blocking way: instead of
+// waiting for a sample to complete, the sensor code runs
+// quickly so that the loop() function can take care of other
+// tasks at the same time.
+
 #include <OPT3101.h>
 #include <Wire.h>
 
@@ -23,7 +30,7 @@ void setup()
   }
 
   sensor.setFrameTiming(512);
-  sensor.setChannel(OPT3101Channel::TX0);
+  sensor.setChannel(0);
   sensor.setBrightness(OPT3101Brightness::Adaptive);
 
   sensor.startSample();
@@ -35,10 +42,10 @@ void loop()
   {
     sensor.readOutputRegs();
 
-    amplitudes[(uint8_t)sensor.channel] = sensor.amplitude;
-    distances[(uint8_t)sensor.channel] = sensor.distanceMillimeters;
+    amplitudes[(uint8_t)sensor.channelUsed] = sensor.amplitude;
+    distances[(uint8_t)sensor.channelUsed] = sensor.distanceMillimeters;
 
-    if (sensor.channel == OPT3101Channel::TX2)
+    if (sensor.channelUsed == 2)
     {
       for (uint8_t i = 0; i < 3; i++)
       {
