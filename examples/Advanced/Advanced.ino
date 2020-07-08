@@ -42,8 +42,8 @@ void loop()
   {
     sensor.readOutputRegs();
 
-    amplitudes[(uint8_t)sensor.channelUsed] = sensor.amplitude;
-    distances[(uint8_t)sensor.channelUsed] = sensor.distanceMillimeters;
+    amplitudes[sensor.channelUsed] = sensor.amplitude;
+    distances[sensor.channelUsed] = sensor.distanceMillimeters;
 
     if (sensor.channelUsed == 2)
     {

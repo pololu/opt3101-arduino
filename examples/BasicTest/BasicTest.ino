@@ -41,7 +41,7 @@ void loop()
 {
   sensor.sample();
 
-  Serial.print((uint8_t)sensor.channelUsed);
+  Serial.print(sensor.channelUsed);
   Serial.print(',');
   Serial.print((uint8_t)sensor.brightnessUsed);
   Serial.print(',');
