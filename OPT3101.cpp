@@ -93,6 +93,9 @@ void OPT3101::setStandardRuntimeSettings()
   if (getLastError()) { return; }
   reg2e = (reg2e & ~(7 << 9)) | (2 << 9);
   writeReg(0x2e, reg2e);
+  if (getLastError()) { return; }
+
+  setFrameTiming(512);
 }
 
 void OPT3101::setChannel(OPT3101Channel ch)

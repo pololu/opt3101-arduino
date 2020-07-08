@@ -40,7 +40,7 @@ public:
   void readOutputRegs();
   void sample();
 
-  OPT3101Channel channel;
+  OPT3101Channel channel = OPT3101Channel::TX0;
   OPT3101Brightness brightness;
   uint16_t ambient;
   uint16_t temperature;
