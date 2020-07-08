@@ -136,12 +136,12 @@ void OPT3101::setBrightness(OPT3101Brightness br)
   writeReg(0x2a, reg2a);
 }
 
-void OPT3101::setMonoshotMode(uint8_t frameCount)
+void OPT3101::setMonoshotMode()
 {
   // MONOSHOT_FZ_CLKCNT = default
-  // MONOSHOT_NUMFRAME = frameCount
+  // MONOSHOT_NUMFRAME = 1
   // MONOSHOT_MODE = 3
-  writeReg(0x27, 0x26ac03 | (frameCount & 0x3f) << 2);
+  writeReg(0x27, 0x26ac07);
   if (getLastError()) { return; }
 
   // DIS_GLB_PD_OSC = 1

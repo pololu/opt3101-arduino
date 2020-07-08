@@ -25,7 +25,7 @@ public:
   void setChannel(uint8_t channel);
   void nextChannel();
   void setBrightness(OPT3101Brightness);
-  void setMonoshotMode(uint8_t frameCount = 1);
+  void setMonoshotMode();
   void setFrameTiming(uint16_t subFrameCount);
   void enableTimingGenerator();
   void disableTimingGenerator();
