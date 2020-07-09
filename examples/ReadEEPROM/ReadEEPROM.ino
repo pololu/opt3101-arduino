@@ -14,9 +14,13 @@ const uint8_t image[] PROGMEM = "\x0b\x09\x00\x10\x0c\x00\x00\xbf\x29\xe4\x93\x2
 // Calibration for David's irs15j_9 board from the tester.
 // const uint8_t image[] PROGMEM = "\xb4\xf0\xb2\xf1\xb4\xde\x79\xa0\xb4\x99\x00\x00\x0b\x09\x00\x10\x0c\x00\x00\xbf\x29\xe4\x93\x2f\x2a\x20\x49\x7c\x2b\x78\x69\x00\x2c\xa7\x0b\x00\x2d\xbb\xe4\x5e\x2e\xa0\x01\x84\x2f\xce\xf7\x4c\x30\x3e\x0d\x20\x31\x35\x0f\x5f\x32\x32\x5e\xb0\x33\x9c\xf2\x4b\x34\xbd\xfc\x60\x35\xff\xd5\x00\x36\x47\xd6\x00\x37\x6b\xe0\x00\x38\x6c\xfc\x29\x39\x4c\x91\xf1\x3a\x24\xba\x4d\x3f\xc8\x08\x00\x41\x10\x80\x8c\x42\x7b\x3d\x00\x43\x83\x00\x00\x45\xdd\x85\x8c\x47\xc8\x08\x80\x48\xc8\x08\x00\x49\xc8\x08\x00\x51\x4c\x34\x00\x52\x8b\x3d\x00\x53\x2a\x34\x00\x54\x02\x3b\x00\x55\x60\x33\x00\x5e\x00\x63\x13\x5f\xf8\x16\xbb\x60\x1d\xea\xd8\x61\xdf\x88\x00\x72\x50\x00\x00\x85\x7a\x26\x00\x86\x82\x26\x00\xb4\xd3\xe4\xe8\xb5\x01\x00\x00\xb8\x1a\x6c\x01\xb9\xa6\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff";
 
+uint8_t meta[30];
+uint8_t metaSize = 0;
 
 void dumpEEPROM()
 {
+  bool metadataDone = false;
+
   // Set the address to 0.
   Wire.beginTransmission(eepromAddress);
   Wire.write(0);
@@ -27,94 +31,75 @@ void dumpEEPROM()
     while(1) {}
   }
 
+  Serial.println(F("EEPROM contents as a C string:"));
   Serial.print('"');
   uint16_t index = 0;
   while (index < 256)
   {
-    uint8_t byteCount = Wire.requestFrom(eepromAddress, (uint8_t)16);
-    if (byteCount != 16)
+    uint8_t byteCount = Wire.requestFrom(eepromAddress, (uint8_t)4);
+    if (byteCount != 4)
     {
       Serial.println(F("\nFailed to read EEPROM."));
       while(1) {}
     }
-    for (uint8_t i = 0; i < 16; i++)
+
+    // Read a chunk of 4 bytes and print those bytes to the serial terminal.
+    uint8_t chunk[4];
+    for (uint8_t i = 0; i < 4; i++)
     {
-      uint8_t value = Wire.read();
+      uint8_t value = chunk[i] = Wire.read();
       Serial.print(F("\\x"));
       if (value < 0x10) { Serial.print('0'); }
       Serial.print(value, HEX);
       index++;
     }
+
+    // See if the chunk contains metadata.
+    if (!metadataDone)
+    {
+      if (chunk[0] == 0xB4)
+      {
+        if (metaSize + 3 <= sizeof(meta))
+        {
+          meta[metaSize++] = chunk[1];
+          meta[metaSize++] = chunk[2];
+          meta[metaSize++] = chunk[3];
+        }
+      }
+      else
+      {
+        metadataDone = true;
+      }
+    }
   }
   Serial.println(F("\";"));
+  Serial.println();
 }
 
-void verifyEEPROM()
+void printSerialNumber(uint8_t * p)
 {
-  uint8_t * ptr = image;
-
-  // Set the address to 0.
-  Wire.beginTransmission(eepromAddress);
-  Wire.write(0);
-  uint8_t error = Wire.endTransmission();
-  if (error)
-  {
-    Serial.println(F("Failed to set EEPROM address."));
-    while(1) {}
-  }
-
-  uint16_t index = 0;
-  while(index < 256)
-  {
-    uint8_t byteCount = Wire.requestFrom(eepromAddress, (uint8_t)16);
-    if (byteCount != 16)
-    {
-      Serial.println(F("\nFailed to read EEPROM."));
-      while(1) {}
-    }
-    for (uint8_t i = 0; i < 16; i++)
-    {
-      uint8_t expected = pgm_read_byte(&image[index]);
-      uint8_t value = Wire.read();
-      if (value != expected)
-      {
-        Serial.print(F("Verification failed at 0x"));
-        Serial.print(index, HEX);
-        Serial.print(F(": expected 0x"));
-        Serial.print(expected, HEX);
-        Serial.print(F(" got 0x"));
-        Serial.print(value, HEX);
-        Serial.println('.');
-        while(1) {}
-      }
-      index++;
-    }
-  }
-  Serial.println(F("Verified EEPROM."));
+  char buffer[16];
+  sprintf_P(buffer, PSTR("%02X-%02X-%02X-%02X"), p[0], p[1], p[2], p[3]);
+  Serial.print("Serial number: ");
+  Serial.println(buffer);
 }
 
-void writeEEPROM()
+void interpretMetadata()
 {
-  uint16_t index = 0;
-  while(index < 256)
+  if (metaSize == 0)
   {
-    Wire.beginTransmission(eepromAddress);
-    Wire.write(index);
-    for (uint8_t i = 0; i < 16; i++)
-    {
-      uint8_t value = pgm_read_byte(&image[index]);
-      Wire.write(value);
-      index++;
-    }
-    uint8_t lastError = Wire.endTransmission();
-    if (lastError)
-    {
-      Serial.println(F("Failed to write EEPROM."));
-      while (1) {}
-    }
-    delay(6);
+    Serial.println(F("No metadata."));
+    return;
   }
-  Serial.println(F("Wrote EEPROM."));
+
+  if (meta[0] == 0xF0 && meta[1] == 0xB2 && meta[2] == 0xF1 && metaSize >= 9)
+  {
+    printSerialNumber(meta + 3);
+  }
+  else
+  {
+    Serial.println(F("Unrecognized metadata."));
+  }
 }
 
 void setup()
@@ -122,21 +107,13 @@ void setup()
   Wire.begin();
   sensor.resetAndWait();
 
-  while (!Serial) {}
-
-  if (sensor.getLastError())
-  {
-    Serial.print(F("Failed to initialize OPT3101: error "));
-    Serial.println(sensor.getLastError());
-    while (1) {}
-  }
-
   // FORCE_EN_BYPASS = 1: Lets us talk to the EEPROM.
   sensor.writeReg(0x00, 0x200000);
 
-  //dumpEEPROM();
-  writeEEPROM();
-  verifyEEPROM();
+  while (!Serial) {}
+
+  dumpEEPROM();
+  interpretMetadata();
 }
 
 void loop()
