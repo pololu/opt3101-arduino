@@ -5,6 +5,8 @@ static const uint32_t reg80Default = 0x4e1e;
 
 void OPT3101::resetAndWait()
 {
+  timingGeneratorEnabled = false;
+
   // Set SOFTWARE_RESET to 1, but don't use writeReg, because the OPT3101 will
   // stop acknowledging after it receives the first register value byte.
   Wire.beginTransmission(address);
@@ -63,23 +65,10 @@ void OPT3101::init()
 {
   resetAndWait();
   if (getLastError()) { return; }
-  setStandardRuntimeSettings();
-  if (getLastError()) { return; }
-  setMonoshotMode();
-  if (getLastError()) { return; }
-  setFrameTiming(512);
+  configureDefault();
 }
 
-// Sets these settings:
-//  TG_OVL_WINDOW_START = 7000   (reg 0x89)
-//  EN_TEMP_CONV = 1             (reg 0x6E)
-//  CLIP_MODE_FC = 1             (reg 0x50)
-//  CLIP_MODE_TEMP = 0           (reg 0x50)
-//  CLIP_MODE_OFFSET = 0         (reg 0x50)
-// To make things a little more reliable, we try to just write entire registers
-// at a time, so we are making assumptions about what values we want in the
-// other bits of those registers.
-void OPT3101::setStandardRuntimeSettings()
+void OPT3101::configureDefault()
 {
   writeReg(0x89, 7000);      // TG_OVL_WINDOW_START = 7000
   if (getLastError()) { return; }
@@ -90,11 +79,16 @@ void OPT3101::setStandardRuntimeSettings()
                              // CLIP_MODE_OFFSET = 0
   if (getLastError()) { return; }
 
-  // IQ_READ_DATA_SEL = 2: This lets us read IQ values later.
+  // IQ_READ_DATA_SEL = 2: This lets us read "raw" IQ values later.
   uint32_t reg2e = readReg(0x2e);
   if (getLastError()) { return; }
   reg2e = (reg2e & ~(7 << 9)) | (2 << 9);
   writeReg(0x2e, reg2e);
+
+  if (getLastError()) { return; }
+  setMonoshotMode();
+  if (getLastError()) { return; }
+  setFrameTiming(512);
 }
 
 void OPT3101::setChannel(uint8_t channel)
@@ -237,7 +231,7 @@ void OPT3101::readOutputRegs()
   phase = reg08 & 0xFFFF;  // PHASE_OUT
 
   // c / (2 * 10 MHz * 0x10000) = 0.22872349395 mm ~= 14990/0x10000
-  distanceMillimeters = (uint32_t)phase * 14990 >> 16;
+  distanceMillimeters = (int32_t)phase * 14990 >> 16;
 
   ambient = reg0a >> 2 & 0x3FF;  // AMB_DATA
 

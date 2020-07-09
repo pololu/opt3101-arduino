@@ -1,0 +1,33 @@
+OPT3101Brightness	KEYWORD1
+Low	KEYWORD2
+High	KEYWORD2
+Adaptive	KEYWORD2
+
+OPT3101	KEYWORD1
+setAddress	KEYWORD2
+getAddress	KEYWORD2
+getLastError	KEYWORD2
+resetAndWait	KEYWORD2
+writeReg	KEYWORD2
+readReg	KEYWORD2
+init	KEYWORD2
+configureDefault	KEYWORD2
+setChannel	KEYWORD2
+nextChannel	KEYWORD2
+setBrightness	KEYWORD2
+setMonoshotMode	KEYWORD2
+setFrameTiming	KEYWORD2
+enableTimingGenerator	KEYWORD2
+disableTimingGenerator	KEYWORD2
+startSample	KEYWORD2
+isSampleDone	KEYWORD2
+readOutputRegs	KEYWORD2
+sample	KEYWORD2
+
+channelUsed	KEYWORD2
+brightnessUsed	KEYWORD2
+ambient	KEYWORD2
+temperature	KEYWORD2
+amplitude	KEYWORD2
+phase	KEYWORD2
+distanceMillimeters	KEYWORD2

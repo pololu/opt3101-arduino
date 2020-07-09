@@ -21,7 +21,7 @@ public:
   uint32_t readReg(uint8_t reg);
 
   void init();
-  void setStandardRuntimeSettings();
+  void configureDefault();
   void setChannel(uint8_t channel);
   void nextChannel();
   void setBrightness(OPT3101Brightness);
