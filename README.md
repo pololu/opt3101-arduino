@@ -1,7 +1,7 @@
 # OPT3101 library for Arduino
 
 Version: 1.0.0<br>
-Release date: 2020-07-15<br>
+Release date: 2020-07-21<br>
 [![Build Status](https://travis-ci.org/pololu/opt3101-arduino.svg?branch=master)](https://travis-ci.org/pololu/opt3101-arduino)<br>
 [www.pololu.com](https://www.pololu.com/)
 
@@ -21,10 +21,10 @@ This library should support any Arduino-compatible board, including the
 
 ### Hardware
 
-An [OPT3101 carrier](TODO)
+An [OPT3101 carrier][3680]
 can be purchased from Pololu's website.
 Before continuing, careful reading of the
-[product page](TODO) is recommended.
+[product page][3680] is recommended.
 
 Make the following connections between the Arduino and the OPT3101 board:
 
@@ -139,7 +139,7 @@ the installation instructions above.
   - `OPT3101Brightness::Adaptive` (255)
   Low brightness mode only works well for nearby objects (e.g. within about
   10 cm).
-  High brightness mode works for a wide range of objects, but objects that
+  High brightness mode works for a wide range of distances, but objects that
   are too reflective or too close can cause the sensor to saturate, meaning
   that it fails to measure a distance.
   Adaptive mode automatically uses low or high brightness depending on how
@@ -234,4 +234,6 @@ the installation instructions above.
 
 ## Version history
 
-* 1.0.0 (2020-07-15): Original release.
+* 1.0.0 (2020-07-21): Original release.
+
+[3680]: https://www.pololu.com/product/3680
