@@ -1,3 +1,5 @@
+// Copyright (C) Pololu Corporation.  See LICENSE.txt for details.
+
 #pragma once
 
 #include <Arduino.h>
