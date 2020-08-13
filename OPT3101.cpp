@@ -74,7 +74,7 @@ void OPT3101::configureDefault()
   if (getLastError()) { return; }
   writeReg(0x6e, 0x0a0000);  // EN_TEMP_CONV = 1
   if (getLastError()) { return; }
-  writeReg(0x50, 0x200101);  // CLIP_MODE_FC = 1 (see above)
+  writeReg(0x50, 0x200101);  // CLIP_MODE_FC = 1
                              // CLIP_MODE_TEMP = 0
                              // CLIP_MODE_OFFSET = 0
   if (getLastError()) { return; }
@@ -84,8 +84,8 @@ void OPT3101::configureDefault()
   if (getLastError()) { return; }
   reg2e = (reg2e & ~(7 << 9)) | (2 << 9);
   writeReg(0x2e, reg2e);
-
   if (getLastError()) { return; }
+
   setMonoshotMode();
   if (getLastError()) { return; }
   setFrameTiming(512);
@@ -147,7 +147,6 @@ void OPT3101::setMonoshotMode()
 
   // POWERUP_DELAY = 95
   writeReg(0x26, (uint32_t)95 << 10 | 0xF);
-  if (getLastError()) { return; }
 }
 
 void OPT3101::setFrameTiming(uint16_t subFrameCount)
@@ -168,6 +167,7 @@ void OPT3101::setFrameTiming(uint16_t subFrameCount)
   if (getLastError()) { return; }
   reg2e = reg2e & ~0xF00000 | (uint32_t)timeConst << 20;
   writeReg(0x2e, reg2e);
+  if (getLastError()) { return; }
 
   // Set NUM_SUB_FRAMES and NUM_AVG_SUB_FRAMES.
   writeReg(0x9f, (subFrameCount - 1) | (uint32_t)(subFrameCount - 1) << 12);
@@ -203,6 +203,7 @@ void OPT3101::startSample()
   // Set MONOSHOT_BIT to 0 before setting it to 1, as recommended here:
   // https://e2e.ti.com/support/sensors/f/1023/p/756598/2825649#2825649
   writeReg(0x00, 0x000000);
+  if (getLastError()) { return; }
   writeReg(0x00, 0x800000);
   startSampleTimeMs = millis();
 }
@@ -215,16 +216,21 @@ bool OPT3101::isSampleDone()
 void OPT3101::readOutputRegs()
 {
   uint32_t reg08 = readReg(0x08);
+  if (getLastError()) { return; }
   uint32_t reg09 = readReg(0x09);
+  if (getLastError()) { return; }
   uint32_t reg0a = readReg(0x0a);
+  if (getLastError()) { return; }
 
   channelUsed = reg08 >> 18 & 3;
   if (channelUsed > 2) { channelUsed = 2; }
   brightnessUsed = (OPT3101Brightness)(reg08 >> 17 & 1);
 
   i = readReg(0x3b);
+  if (getLastError()) { return; }
   if (i > 0x7fffff) { i -= 0x1000000; }
   q = readReg(0x3c);
+  if (getLastError()) { return; }
   if (q > 0x7fffff) { q -= 0x1000000; }
 
   amplitude = reg09 & 0xFFFF;  // AMP_OUT
@@ -241,6 +247,7 @@ void OPT3101::readOutputRegs()
 void OPT3101::sample()
 {
   startSample();
+  if (getLastError()) { return; }
   delay(frameDelayTimeMs);
   readOutputRegs();
 }
