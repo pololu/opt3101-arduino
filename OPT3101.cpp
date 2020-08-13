@@ -98,7 +98,7 @@ void OPT3101::setChannel(uint8_t channel)
   uint32_t reg2a = readReg(0x2a);
   if (getLastError()) { return; }
 
-  reg2a &= ~((uint32_t)1 << 1);  // EN_TX_SWITCH = 0
+  reg2a &= ~((uint32_t)1 << 0);  // EN_TX_SWITCH = 0
   reg2a = reg2a & ~((uint32_t)3 << 1) | (channel & 3) << 1;
 
   writeReg(0x2a, reg2a);
@@ -118,7 +118,7 @@ void OPT3101::setBrightness(OPT3101Brightness br)
 
   if (br == OPT3101Brightness::Adaptive)
   {
-    reg2a |= (1 << 15);  // EN_ADAPTIVE_HDR = 1
+    reg2a |= (uint16_t)1 << 15;  // EN_ADAPTIVE_HDR = 1
   }
   else
   {
