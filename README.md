@@ -102,7 +102,7 @@ the installation instructions above.
   code if it fails.
 
 * `void resetAndWait()`<br>
-  Resets the OPT3101 and then waits for the INIT_LOAD_DONE to be 1.
+  Resets the OPT3101 and then waits for the INIT_LOAD_DONE bit to be 1.
 
 * `void writeReg(uint8_t reg, uint32_t value)`<br>
   Writes the given value to the an OPT3101 register.
@@ -137,8 +137,7 @@ the installation instructions above.
   - `OPT3101Brightness::Low` (0)
   - `OPT3101Brightness::High` (1)
   - `OPT3101Brightness::Adaptive` (255)
-  Low brightness mode only works well for nearby objects (e.g. within about
-  10 cm).
+  Low brightness mode only works well for nearby objects.
   High brightness mode works for a wide range of distances, but objects that
   are too reflective or too close can cause the sensor to saturate, meaning
   that it fails to measure a distance.
@@ -182,30 +181,29 @@ the installation instructions above.
   with the OPT3101, and does not report any errors using `getLastError()`.
 
 * `void readOutputRegs();`<br>
-  Reads the sensor's output registers updates the data in the following
+  Reads the sensor's output registers and updates the data in the following
   member variables:
   `channelUsed`, `brightnessUsed`, `i`, `q`, `amplitude`, `phase`,
   `distanceMillimeters`, `ambient`, `temperature`.
 
 * `void sample();`<br>
   This calls `startSample()`, then delays until the sample is complete, then
-  called `readOutputRegs()` to read the results from the sample.
+  calls `readOutputRegs()` to read the results from the sample.
 
 * Sample results:
 
   * `uint8_t channelUsed`<br>
     The channel used in the last sample.
-    The library ensures that this number will be 0, 1, or 2,
-    so that you can safely use it as an index to a 3-element array.
+    The library ensures that this number will be 0, 1, or 2.
   * `OPT3101Brightness brightnessUsed;`<br>
     The brightness used in the last sample.  This will either be
-    `OPT3101Brightness::Low` (0) or `OPT3101Brightness::High` (0)
+    `OPT3101Brightness::Low` (0) or `OPT3101Brightness::High` (1).
   * `uint16_t ambient;`<br>
     The level of ambient light detected in the last sample.
-    The OPT3101 uses this internally to adjust its data.
+    The OPT3101 uses this internally to adjust its readings.
   * `uint16_t temperature;`<br>
     The temperature measured during the last sample.
-    The OPT3101 uses this internally to adjsust its data.
+    The OPT3101 uses this internally to adjust its readings.
   * `int32_t i, q;`<br>
     These two numbers come from reading the IPHASE_XTALK and QPHASE_XTALK
     registers from the OPT3101 while IQ_READ_DATA_SEL is 2.
