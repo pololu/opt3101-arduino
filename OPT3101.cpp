@@ -104,8 +104,8 @@ void OPT3101::setChannel(uint8_t channel)
   }
   else
   {
-  reg2a &= ~((uint32_t)1 << 0);  // EN_TX_SWITCH = 0
-  reg2a = reg2a & ~((uint32_t)3 << 1) | (channel & 3) << 1;
+    reg2a &= ~((uint32_t)1 << 0);  // EN_TX_SWITCH = 0
+    reg2a = reg2a & ~((uint32_t)3 << 1) | (channel & 3) << 1;
   }
 
   writeReg(0x2a, reg2a);
@@ -226,14 +226,14 @@ void OPT3101::enableDataReadyOutput(uint8_t gpPin)
   uint32_t reg78 = readReg(0x78);
   switch (gpPin)
   {
-    case 1:
-      // GPO1_MUX_SEL = 2 (DIG_GPO_0)
-      // GPIO1_OBUF_EN = 1
-      reg78 = (reg78 & ~((uint32_t)7 << 6)) | (2 << 6) | (1 << 12);
-    case 2:
-      // GPO2_MUX_SEL = 2 (DIG_GPO_0)
-      // GPIO2_OBUF_EN = 1
-      reg78 = (reg78 & ~((uint32_t)7 << 9)) | (2 << 9) | ((uint16_t)1 << 15);
+  case 1:
+    // GPO1_MUX_SEL = 2 (DIG_GPO_0)
+    // GPIO1_OBUF_EN = 1
+    reg78 = (reg78 & ~((uint32_t)7 << 6)) | (2 << 6) | (1 << 12);
+  case 2:
+    // GPO2_MUX_SEL = 2 (DIG_GPO_0)
+    // GPIO2_OBUF_EN = 1
+    reg78 = (reg78 & ~((uint32_t)7 << 9)) | (2 << 9) | ((uint16_t)1 << 15);
   }
   writeReg(0x78, reg78);
   if (getLastError()) { return; }
