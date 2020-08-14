@@ -93,13 +93,20 @@ void OPT3101::configureDefault()
 
 void OPT3101::setChannel(uint8_t channel)
 {
-  if (channel > 2) { channel = 0; }
+  if (channel > 2) { channel = OPT3101ChannelAutoSwitch; }
 
   uint32_t reg2a = readReg(0x2a);
   if (getLastError()) { return; }
 
+  if (channel == OPT3101ChannelAutoSwitch)
+  {
+    reg2a |= (1 << 0);   // EN_TX_SWITCH = 1
+  }
+  else
+  {
   reg2a &= ~((uint32_t)1 << 0);  // EN_TX_SWITCH = 0
   reg2a = reg2a & ~((uint32_t)3 << 1) | (channel & 3) << 1;
+  }
 
   writeReg(0x2a, reg2a);
 }
@@ -149,6 +156,14 @@ void OPT3101::setMonoshotMode()
   writeReg(0x26, (uint32_t)95 << 10 | 0xF);
 }
 
+void OPT3101::setContinuousMode()
+{
+  // MONOSHOT_FZ_CLKCNT = default
+  // MONOSHOT_NUMFRAME = 1
+  // MONOSHOT_MODE = 0
+  writeReg(0x27, 0x26ac04);
+}
+
 void OPT3101::setFrameTiming(uint16_t subFrameCount)
 {
   // Make sure subFrameCount is a power of 2 between 1 and 4096.
@@ -195,6 +210,33 @@ void OPT3101::disableTimingGenerator()
 {
   writeReg(0x80, reg80Default);  // TG_EN = 0
   timingGeneratorEnabled = false;
+}
+
+void OPT3101::enableDataReadyOutput(uint8_t gpPin)
+{
+  if (gpPin < 1) { gpPin = 1; }
+  if (gpPin > 2) { gpPin = 2; }
+
+  // DIG_GPO_SEL0 = 9 (DATA_RDY)
+  uint32_t reg0b = readReg(0x0b);
+  reg0b = (reg0b & ~(uint32_t)0xF) | 9;
+  writeReg(0x0b, reg0b);
+  if (getLastError()) { return; }
+
+  uint32_t reg78 = readReg(0x78);
+  switch (gpPin)
+  {
+    case 1:
+      // GPO1_MUX_SEL = 2 (DIG_GPO_0)
+      // GPIO1_OBUF_EN = 1
+      reg78 = (reg78 & ~((uint32_t)7 << 6)) | (2 << 6) | (1 << 12);
+    case 2:
+      // GPO2_MUX_SEL = 2 (DIG_GPO_0)
+      // GPIO2_OBUF_EN = 1
+      reg78 = (reg78 & ~((uint32_t)7 << 9)) | (2 << 9) | ((uint16_t)1 << 15);
+  }
+  writeReg(0x78, reg78);
+  if (getLastError()) { return; }
 }
 
 void OPT3101::startSample()
