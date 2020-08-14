@@ -82,7 +82,7 @@ void OPT3101::configureDefault()
   // IQ_READ_DATA_SEL = 2: This lets us read "raw" IQ values later.
   uint32_t reg2e = readReg(0x2e);
   if (getLastError()) { return; }
-  reg2e = (reg2e & ~(7 << 9)) | (2 << 9);
+  reg2e = (reg2e & ~((uint32_t)7 << 9)) | (2 << 9);
   writeReg(0x2e, reg2e);
   if (getLastError()) { return; }
 
@@ -124,7 +124,7 @@ void OPT3101::setBrightness(OPT3101Brightness br)
   {
     // EN_ADAPTIVE_HDR = 0
     // SEL_HDR_MODE = hdr
-    reg2a = reg2a & ~0x18000 | ((uint32_t)br & 1) << 16;
+    reg2a = reg2a & ~(uint32_t)0x18000 | ((uint32_t)br & 1) << 16;
   }
 
   writeReg(0x2a, reg2a);
@@ -165,7 +165,7 @@ void OPT3101::setFrameTiming(uint16_t subFrameCount)
 
   uint32_t reg2e = readReg(0x2e);
   if (getLastError()) { return; }
-  reg2e = reg2e & ~0xF00000 | (uint32_t)timeConst << 20;
+  reg2e = reg2e & ~(uint32_t)0xF00000 | (uint32_t)timeConst << 20;
   writeReg(0x2e, reg2e);
   if (getLastError()) { return; }
 
