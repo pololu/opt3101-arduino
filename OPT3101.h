@@ -10,6 +10,8 @@ enum class OPT3101Brightness : uint8_t {
   Adaptive = 255
 };
 
+const uint8_t OPT3101ChannelAutoSwitch = 255;
+
 class OPT3101
 {
 public:
@@ -28,9 +30,11 @@ public:
   void nextChannel();
   void setBrightness(OPT3101Brightness);
   void setMonoshotMode();
+  void setContinuousMode();
   void setFrameTiming(uint16_t subFrameCount);
   void enableTimingGenerator();
   void disableTimingGenerator();
+  void enableDataReadyOutput(uint8_t gpPin);
   void startSample();
   bool isSampleDone();
   void readOutputRegs();

@@ -1,0 +1,69 @@
+// This example shows how to read from all three channels on
+// the OPT3101 and store the results in arrays.  It also shows
+// how to use the sensor in a non-blocking way: instead of
+// waiting for a sample to complete, the sensor code runs
+// quickly so that the loop() function can take care of other
+// tasks at the same time.
+
+#include <OPT3101.h>
+#include <Wire.h>
+
+OPT3101 sensor;
+
+uint16_t amplitudes[3];
+int16_t distances[3];
+volatile bool dataReady = false;
+
+void setup()
+{
+  Wire.begin();
+
+  // Wait for the serial port to be opened before printing
+  // messages (only applies to boards with native USB).
+  while (!Serial) {}
+
+  sensor.init();
+  if (sensor.getLastError())
+  {
+    Serial.print(F("Failed to initialize OPT3101: error "));
+    Serial.println(sensor.getLastError());
+    while (1) {}
+  }
+  sensor.setContinuousMode();
+  sensor.enableDataReadyOutput(1);
+  sensor.setFrameTiming(128);
+  sensor.setChannel(OPT3101ChannelAutoSwitch);
+  sensor.setBrightness(OPT3101Brightness::Adaptive);
+
+  attachInterrupt(digitalPinToInterrupt(7), setDataReadyFlag, RISING);
+  sensor.enableTimingGenerator();
+}
+
+void loop()
+{
+  if (dataReady)
+  {
+    sensor.readOutputRegs();
+
+    amplitudes[sensor.channelUsed] = sensor.amplitude;
+    distances[sensor.channelUsed] = sensor.distanceMillimeters;
+
+    if (sensor.channelUsed == 2)
+    {
+      for (uint8_t i = 0; i < 3; i++)
+      {
+        Serial.print(amplitudes[i]);
+        Serial.print(',');
+        Serial.print(distances[i]);
+        Serial.print(", ");
+      }
+      Serial.println();
+    }
+    dataReady = false;
+  }
+}
+
+void setDataReadyFlag()
+{
+  dataReady = true;
+}
