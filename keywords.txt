@@ -3,6 +3,8 @@ Low	KEYWORD2
 High	KEYWORD2
 Adaptive	KEYWORD2
 
+OPT3101ChannelAutoSwitch	KEYWORD2
+
 OPT3101	KEYWORD1
 setAddress	KEYWORD2
 getAddress	KEYWORD2
@@ -16,9 +18,11 @@ setChannel	KEYWORD2
 nextChannel	KEYWORD2
 setBrightness	KEYWORD2
 setMonoshotMode	KEYWORD2
+setContinuousMode	KEYWORD2
 setFrameTiming	KEYWORD2
 enableTimingGenerator	KEYWORD2
 disableTimingGenerator	KEYWORD2
+enableDataReadyOutput	KEYWORD2
 startSample	KEYWORD2
 isSampleDone	KEYWORD2
 readOutputRegs	KEYWORD2

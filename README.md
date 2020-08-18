@@ -123,8 +123,11 @@ the installation instructions above.
   Configures the sensor to use the specified channel.
   This determines which set of infrared LEDs will be turned on while taking
   a reading.
-  The valid values for `channel` are 0, 1, and 2, which correspond to channels
-  TX0, TX1, and TX2 respectively.
+  Valid arguments are:
+  - 0 for TX0
+  - 1 for TX1
+  - 2 for TX2
+  - `OPT3101ChannelAutoSwitch` to automatically cycle through all channels
 
 * `void nextChannel();`<br>
   This convenience method configures the sensor to use the channel that comes
@@ -150,6 +153,10 @@ the installation instructions above.
   This function is called by `configureDefault()` which is called by `init()`
   so most applications will not need to use it directly.
 
+* `void setContinuousMode();`<br>
+  Configures the sensor to use continuous mode, where it automatically
+  takes readings as long as the timing generator is enabled.
+
 * `void setFrameTiming(uint16_t subFrameCount);`<br>
   Configures the OPT3101 to average the specified number of sub-frames.
   Each frame of the OPT3101 (i.e. sample) consists of a certain number of
@@ -167,6 +174,11 @@ the installation instructions above.
 
 * `void disableTimingGenerator();`<br>
   Disables the timing generator by setting the `TG_EN` bit to 0.
+
+* `void enableDataReadyOutput(uint8_t gpPin);`<br>
+  Configures one of the GPIO pins of the OPT3101 to be used as a data ready
+  output which drives high when a new reading is available.
+  Valid arguments are 1 for GPIO1 and 2 for GPIO2.
 
 * `void startSample();`<br>
   Tells the sensor to start taking a sample.
