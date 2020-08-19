@@ -29,7 +29,7 @@ void setup()
     while (1) {}
   }
 
-  sensor.setFrameTiming(512);
+  sensor.setFrameTiming(256);
   sensor.setChannel(0);
   sensor.setBrightness(OPT3101Brightness::Adaptive);
 
