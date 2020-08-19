@@ -1,7 +1,7 @@
 # OPT3101 library for Arduino
 
 Version: 1.0.0<br>
-Release date: 2020-07-21<br>
+Release date: 2020-08-19<br>
 [![Build Status](https://travis-ci.org/pololu/opt3101-arduino.svg?branch=master)](https://travis-ci.org/pololu/opt3101-arduino)<br>
 [www.pololu.com](https://www.pololu.com/)
 
@@ -244,6 +244,6 @@ the installation instructions above.
 
 ## Version history
 
-* 1.0.0 (2020-07-21): Original release.
+* 1.0.0 (2020-08-19): Original release.
 
 [3680]: https://www.pololu.com/product/3680
