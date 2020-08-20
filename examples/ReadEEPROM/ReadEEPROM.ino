@@ -1,3 +1,6 @@
+// This example shows how to read the contents of the EEPROM
+// connected to an OPT3101.
+
 #include <OPT3101.h>
 #include <Wire.h>
 
