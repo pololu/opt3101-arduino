@@ -5,7 +5,7 @@
 // Each channel is sampled approximately 41 times per second.
 //
 // In addition to the usual power and I2C connections, you
-// will need to connect the GPIO1 pin to an interrupt on your
+// will need to connect the GP1 pin to an interrupt on your
 // Arduino.  For ATmega32U4-based Arduinos, use pin 7.
 // For other Arduinos, use pin 2.  To use a different pin,
 // change the definition of dataReadyPin below, and refer to

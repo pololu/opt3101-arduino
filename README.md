@@ -178,7 +178,7 @@ the installation instructions above.
 * `void enableDataReadyOutput(uint8_t gpPin);`<br>
   Configures one of the GPIO pins of the OPT3101 to be used as a data ready
   output which drives high when a new reading is available.
-  Valid arguments are 1 for GPIO1 and 2 for GPIO2.
+  Valid arguments are 1 for GP1 and 2 for GP2.
 
 * `void startSample();`<br>
   Tells the sensor to start taking a sample.
