@@ -99,6 +99,7 @@ void interpretMetadata()
 
 void setup()
 {
+  Serial.begin(9600);
   Wire.begin();
 
   while (!Serial) {}

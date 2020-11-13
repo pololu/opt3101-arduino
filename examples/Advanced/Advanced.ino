@@ -15,6 +15,7 @@ int16_t distances[3];
 
 void setup()
 {
+  Serial.begin(9600);
   Wire.begin();
 
   // Wait for the serial port to be opened before printing
