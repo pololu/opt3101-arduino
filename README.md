@@ -2,7 +2,6 @@
 
 Version: 1.0.1<br>
 Release date: 2020-11-17<br>
-[![Build Status](https://travis-ci.org/pololu/opt3101-arduino.svg?branch=master)](https://travis-ci.org/pololu/opt3101-arduino)<br>
 [www.pololu.com](https://www.pololu.com/)
 
 ## Summary
