@@ -86,9 +86,10 @@ the installation instructions above.
   Constructor for the OPT3101 class.
 
 * `void setAddress(uint8_t new_addr)`<br>
-  Changes the I&sup2;C slave device address of the OPT3101 to the given value (7-bit).
-  The library uses an address of 0x58 by default if you don't call this
-  function.
+  Configures the library to use a different I&sup2;C address (7-bit) to
+  communicate with the OPT3101.
+  The address you provide here must match the configuration of your hardware.
+  The library uses an address of 0x58 by default.
 
 * `uint8_t getAddress()`<br>
   Returns the current I&sup2;C address.
